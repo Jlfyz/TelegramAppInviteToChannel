@@ -3,11 +3,16 @@ from telethon.tl.functions.channels import InviteToChannelRequest
 from telethon.tl.types import InputChannel, InputUser
 from telethon.errors.rpcerrorlist import UsernameInvalidError, UserNotMutualContactError
 from time import sleep
-from telethon.errors.rpcerrorlist import UserIdInvalidError
 import re
 import constants
-phone_number = '+380675141407'
-client = TelegramClient('Go_on', constants.api_id, constants.api_hash).start()
+
+while True:
+    phone_number = input('Your phone number /you need to be sign in Telegram!!!/')
+    is_phone_True = re.search('(\+[0-9]{12}$)', phone_number)
+    if phone_number == is_phone_True:
+        client = TelegramClient('Go_on', constants.api_id, constants.api_hash).start()
+        break
+    continue
 
 
 def main():
@@ -16,15 +21,14 @@ def main():
         client.send_code_request(phone_number)
         me = client.sign_in(phone_number, input('Enter code: '))
     while True:
-        channel_name = input('Link of channel pls example: https://t.me/qwertyuiop1234567890')
+        channel_name = input('Link of channel pls, example: https://t.me/qwertyuiop1234567890')
         is_correct = re.search(r'(http?s:\/\/)(t\.me)(\/[A-Za-z0-9]+)', channel_name)
         if channel_name == is_correct:
-            channel = client.get_entity(channel_name)  # channel_ id https://t.me/bloXrouteLabsCommunity
-            users_in_channel =  client.get_participants(channel_name)  # channel id or https://t.me/ncent
+            channel = client.get_entity(channel_name)  # channel_ id or name
+            users_in_channel = client.get_participants(channel_name)  # channel id or name
             print(users_in_channel)
             break
-        else:
-            continue
+        continue
 
     def is_in_group(username):
         if username in users_in_channel:
@@ -47,7 +51,7 @@ def main():
                 try:
                     sleep(31)
                     client.invoke(InviteToChannelRequest(InputChannel(channel.id, channel.access_hash),
-                                                                [InputUser(user.user_id, user.access_hash)]))
+                                                         [InputUser(user.user_id, user.access_hash)]))
                 except errors.rpcerrorlist.UserPrivacyRestrictedError as err:
                     print('>>>>0. UserPrivacyRestrictedError...')
                     print(err)
