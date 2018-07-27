@@ -5,7 +5,7 @@ from telethon.errors.rpcerrorlist import UsernameInvalidError, UserNotMutualCont
 from time import sleep
 import re
 import constans
-
+from telethon.tl.functions.contacts import ImportContactsRequest
 while True:
     phone_number = input('Your phone number /you need to be sign in Telegram!!!/')
     is_phone_True = re.search('(\+[0-9]{12}$)', phone_number)
@@ -52,6 +52,11 @@ def main():
         channel = client.get_entity(togroup)
         for i in range(10):
             try:
+                contact = InputPhoneContact(client_id=user[i].id,
+                                            phone=user[i].phone,
+                                            first_name=user[i].first_name,
+                                            last_name=user[i].last_name)
+                result = client.invoke(ImportContactsRequest([contact]))
                 client(InviteToChannelRequest(InputChannel(channel.id, channel.access_hash),
                                                     [InputUser(users[i].id, users[i].access_hash)]))
             except errors.rpcerrorlist.UserPrivacyRestrictedError as err:
@@ -99,16 +104,21 @@ def main():
             print(tmp)
             if not flag:
                 try:
-                    user = client.get_input_entity(tmp)  # (ResolveUsernameRequest(tmp))
+                    user = client.get_entity(tmp)  # (ResolveUsernameRequest(tmp))
                     print(user)
                 except UsernameInvalidError as err:
                     print(err)
                     continue
                 if user:
                     try:
+                        contact = InputPhoneContact(client_id=user.id,
+                                                    phone=user.phone,
+                                                    first_name=user.first_name,
+                                                    last_name=user.last_name)
+                        result = client.invoke(ImportContactsRequest([contact]))
                         sleep(31)
                         client(InviteToChannelRequest(InputChannel(channel.id, channel.access_hash),
-                                                             [InputUser(user.user_id, user.access_hash)]))
+                                                             [InputUser(user.id, user.access_hash)]))
                     except errors.rpcerrorlist.UserPrivacyRestrictedError as err:
                         print('>>>>0. UserPrivacyRestrictedError...')
                         print(err)
